@@ -1,0 +1,431 @@
+<!--本页面实现图书图书管理功能
+实现了图书的增、删、查(重置查询)、改
+增和改的时候都会判断日期，如果用户设置的发布事件比入库时间(电脑时间)晚则提示错误轻提示
+Created by liushuai in 2023/12/18
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图书管理</title>
+    <!-- 引入JQuery -->
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <!-- 引入Bootstrap的 CSS文件 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- 引入users 的 CSS文件 -->
+    <link rel="stylesheet" href="css/users.css">
+    <!-- 引入Bootstrap的 JS文件 -->
+    <script src="js/bootstrap.min.js"></script>
+</head>
+
+<body style="background-image: url('image/qdu.jpg'); background-size: cover">
+<h1 style="color:greenyellow;font－family:宋体;font-weight:bold;font-size:50px">图书管理</h1>
+
+<div class="menu">
+    <ul class="center">
+        <li class="se2"><a href="HelloWorld.html">首页</a></li>
+        <li class="se2"><a href="login.html">登录</a></li>
+        <li class="se3"><a href="regist.html">注册</a></li>
+        <li class="se3"><a href="passwordChange.html">忘记密码</a></li>
+        <li class="se5"><a href="books.html">图书管理</a></li>
+        <li class="se5"><a href="lend.html">借阅管理</a></li>
+        <li class="se5"><a href="blackList.html">黑名单管理</a></li>
+        <li class="se5"><a href="order.html">订购管理</a></li>
+
+        <li class="se4">
+            <a href="https://www.qdu.edu.cn/">联系我们</a>
+        </li>
+    </ul>
+</div>
+<div class="search-div">
+    <form class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="col-12">
+            <label class="visually-hidden" for="search-bookname">Username</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="search-bookname" placeholder="请输入图书名称">
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label class="visually-hidden" for="search-author"></label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="search-author" placeholder="请输入作者">
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button type="button" class="btn btn-primary" id="search-btn">搜索</button>
+            <button type="button" class="btn btn-secondary" id="reform" >重置</button>
+        </div>
+    </form>
+    <div class="operation-div">
+        <button type="button" class="btn btn-success" id="add-btn" onclick="operate()">新增</button>
+
+    </div>
+</div>
+<div class="table-div">
+    <table class="table table-light table-striped-columns">
+        <thead>
+        <tr class = "table-primary">
+
+            <th scope="col">ID</th>
+            <th scope="col">图书全称</th>
+            <th scope="col">作者</th>
+            <th scope="col">类别</th>
+            <th scope="col">图书简介</th>
+            <th scope="col">完好度</th>
+            <th scope="col">发行时间</th>
+            <th scope="col">入库时间</th>
+            <th scope="col">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<!--新增表单-->
+<div class="modal fade" id="bookForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">新增</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close " onclick="resetForm()"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="text" id="id" name="id" hidden="hidden">
+                    <div class="mb-3">
+                        <label for="bookname" class="col-form-label">图书全称:</label>
+                        <input type="text" class="form-control" id="bookname" name="bookname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="author" class="col-form-label">作者:</label>
+                        <input class="form-control" id="author" name="author"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="col-form-label">类别:</label>
+                        <input class="form-control" id="category" name="category"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookIntroduction" class="col-form-label">图书简介:</label>
+                        <input class="form-control" id="bookIntroduction" name="bookIntroduction"></input>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="integrity" class="col-form-label">完好度(%):</label>
+                        <input class="form-control" id="integrity" name="integrity">
+                    </div>
+
+                    <div class="mb-3">
+<!--                        发行时间要求输入是Date类型-->
+                        <label for="releaseTime" class="col-form-label">发行时间:</label>
+                        <input type="date" class="form-control" id="releaseTime" name="releaseTime"></input>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addOrUpdate()">确认</button>
+
+            </div>
+        </div>
+    </div>login.jsp
+</div>
+<!--   轻提示-->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="..." id="toast-img">
+            <strong class="me-auto" id="toast-title">Bootstrap</strong>
+            <small>刚刚</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            Hello, world! This is a toast message.
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function (){
+
+        // JQuery
+        // ready -> 当页面元素全部加载完成时 自动执行
+       // console.log("fff")
+        getBookList();
+        // 给搜索按钮添加点击事件 #代表ID选择器
+        $("#search-btn").click(function (){
+            getBookList();
+        })
+        // 给新增按钮添加一个点击事件，打开新增弹框
+        $("#add-btn").click(function (){
+            $("#bookForm").modal("show");
+
+        })
+        $("#reform").click(function () {
+            reFrom();
+            getUserList();
+        })
+    })
+    function operate(id)
+    {
+        console.log("operate")
+        if(id != undefined && id != "")
+        {//更新按钮
+            console.log("更新"+id)
+            $("#exampleModalLabel").text("更新用户");
+            $("#id").val(id);
+            getById(id)
+        }
+        else
+        {//新增按钮
+            console.log("新增"+id)
+
+            $("#exampleModalLabel").text("新增图书");
+            $("#bookForm").modal("show");
+        }
+    }
+    function addOrUpdate()
+    {//判断要更新还是新增
+        console.log("addOrUpdate")
+
+        var id=$("#id").val();
+        if(id != undefined && id != "")
+        {
+            console.log("update"+id)
+            updateSysbook();
+        }
+        else
+        {
+            console.log("add"+id)
+            addSysbook();
+        }
+    }
+    function getById(id)
+    {
+        $.ajax({
+            url:"http://localhost:8081/book/getById",
+            type:"POST",
+            data: {
+                id
+            },
+            success:function (resp) {
+                console.log(resp);
+                //数据回显
+                $("#bookname").val(resp.data.bookname);
+                $("#author").val(resp.data.author);
+                $("#category").val(resp.data.category);
+                $("#bookIntroduction").val(resp.data.bookIntroduction);
+                $("#integrity").val(resp.data.integrity);
+                $("#releaseTime").val(resp.data.releaseTime);
+                $("#bookForm").modal("show");
+            }
+        })
+    }
+    function updateSysbook()
+    {
+        var bookname=$("#bookname").val();
+        var author=$("#author").val();
+        var bookIntroduction=$("#bookIntroduction").val();
+        var integrity=$("#integrity").val();
+        var category=$("#category").val();
+        var releaseTimeInput = $("#releaseTime").val(); // 获取HTML输入元素的值
+        var releaseTime = new Date(releaseTimeInput); // 将字符串解析为Date对象
+        var id=$("#id").val();
+        var currentDate = new Date();
+
+        // 比较发行时间一定要早于入库时间
+        if (!(releaseTime.getFullYear() < currentDate.getFullYear() ||
+            (releaseTime.getFullYear() === currentDate.getFullYear() && releaseTime.getMonth() < currentDate.getMonth()) ||
+            (releaseTime.getFullYear() === currentDate.getFullYear() && releaseTime.getMonth() === currentDate.getMonth() && releaseTime.getDate() < currentDate.getDate()))) {
+            myToast("错误！","您设置发布时间不对,请重试",false);
+            $("#bookForm").modal("hide");
+            getBookList();
+            return
+        }
+        $.ajax({
+            url:"http://localhost:8081/book/update",
+            type:"POST",
+            data: {
+                bookname,author,category,bookIntroduction,integrity,releaseTime
+                ,id
+            },
+            success:function (resp)
+            {
+                console.log(resp);
+
+                if(resp.code==200)   //新增成功 打开轻提示
+                {
+                    myToast("成功！","您刚刚成功更新了一条数据！",true);
+                    $("#bookForm").modal("hide");
+                    getBookList();
+                    resetForm();
+                }
+                else
+                    myToast("失败！","您刚刚操作失败，请稍后再试",false);
+            }
+        })
+        //2发生ajax的值 并且携带上值
+    }
+    function addSysbook()
+    {//添加用户)
+        //1获取用户的值
+        var bookname=$("#bookname").val();
+        var author=$("#author").val();
+        var bookIntroduction=$("#bookIntroduction").val();
+        var integrity=$("#integrity").val();
+        var category=$("#category").val();
+        var releaseTimeInput = $("#releaseTime").val(); // 获取HTML输入元素的值
+        var releaseTime = new Date(releaseTimeInput); // 将字符串解析为Date对象
+        // releaseTime默认当天12:0:0
+        // 验证日期是否有效
+        if (isNaN(releaseTime.getTime())) {
+            console.log("无效的日期");
+        } else {
+            console.log("有效的日期：", releaseTime);
+        }
+
+        // 获取当前日期
+        var currentDate = new Date();
+
+        // 比较发行时间一定要早于入库时间
+        if (!(releaseTime.getFullYear() < currentDate.getFullYear() ||
+            (releaseTime.getFullYear() === currentDate.getFullYear() && releaseTime.getMonth() < currentDate.getMonth()) ||
+            (releaseTime.getFullYear() === currentDate.getFullYear() && releaseTime.getMonth() === currentDate.getMonth() && releaseTime.getDate() < currentDate.getDate()))) {
+            myToast("错误！","您设置发布时间不对,请重试",false);
+            $("#bookForm").modal("hide");
+            getBookList();
+            return
+        }
+
+        $.ajax({
+            url:"http://localhost:8081/book/add",
+            type:"POST",
+            data: {
+                bookname,author,category,bookIntroduction,integrity,releaseTime
+            },
+            success:function (resp)
+            {
+                console.log(resp);
+
+                   if(resp.code==200)   //新增成功 打开轻提示
+                    {
+                        myToast("成功！","您刚刚成功新增了一条数据！",true);
+                        $("#bookForm").modal("hide");
+                        getBookList();
+                        resetForm();
+                }
+                    else
+                    myToast("失败！","您刚刚操作失败，请稍后再试",false);
+            }
+        })
+        //2发生ajax的值 并且携带上值
+    }
+    function deleteById(id)
+    {
+        $.ajax({
+            url: "http://localhost:8081/book/delete",
+            type: "POST",
+            data: {id},
+            success: function (resp) {
+                if(resp.code==200)   //新增成功 打开轻提示
+                {
+                    myToast("成功！", "您刚刚成功删除了一条数据！", true);
+                    getBookList();
+                }
+                else
+                    myToast("失败！","您刚刚操作失败，请稍后再试",false);
+            }
+        })
+    }
+    function myToast(title,message,isSuccess)
+    {
+        var toastElement=$("#liveToast");
+        var toastBooststrap=bootstrap.Toast.getOrCreateInstance(toastElement);
+
+        $("#toast-title").text(title);
+        $("#toast-message").text(message);
+        if(isSuccess)
+            $("#toast-img").attr("src","./image/success.png")
+        else
+            $("#toast-img").attr("src","./image/fail.png")
+
+        toastBooststrap.show();
+    }
+    /**
+     * 获取用户列表
+     */
+    function getBookList(){
+        // 获取条件输入框中的数据
+        var bookname = $("#search-bookname").val();
+        var author = $("#search-author").val();
+        $.ajax({
+            url:"http://localhost:8081/book/list",
+            type:"POST",
+            data:{
+                // 请求携带的参数
+                bookname:bookname,
+                author:author
+            },
+            // 回调函数  前面成功后执行该函数
+            success: function (resp){
+                console.log(resp);
+                // 获取到用户的列表数据
+                var bookList = resp.data;
+                // 要组装的 html
+                var htmlStr = "";
+                bookList.forEach((item,index)=>{
+
+                    // item 当前正在循环的元素
+                    // index 当前元素的下标
+                    htmlStr += "<tr>";
+                    htmlStr += "<th>"+item.id+"</th>";
+                    htmlStr += "<td>"+item.bookname+"</td>";
+                    htmlStr += "<td>"+item.author+"</td>";
+                    htmlStr += "<td>"+item.category+"</td>";
+
+                    htmlStr += "<td>"+item.bookIntroduction+"</td>";
+                    htmlStr += "<td>"+item.integrity+"%</td>";
+                    // htmlStr += "<td>" + item.integrity.toString() + "</td>";
+                    htmlStr += "<td>"+item.releaseTime+"</td>";
+
+                    htmlStr += "<td>"+item.storageTime+"</td>";
+
+                    // if(item.gender == 0){
+                    //     htmlStr += "<td>女</td>";
+                    // }else if(item.gender == 1){
+                    //     htmlStr += "<td>男</td>"
+                    // }
+                    <!-- 操作列 -->
+                    htmlStr += "<td>" +
+                        "<button type='button' class='btn btn-success btn-sm' onclick='operate("+item.id+")'>更新</button>" +
+                        "<button type='button' class='btn btn-danger btn-sm' onclick='deleteById("+item.id+")'>删除</button>" +
+                        "</td>";
+                    htmlStr += "</tr>";
+                })
+                // 将htmlStr放入tbody标签
+                $("tbody").html(htmlStr)
+            },
+            error: function (error){
+                console.log(error)
+            }
+        })
+    }
+    function resetForm()
+    {
+        $("#bookname").val("");
+        $("#author").val("");
+        $("#bookIntroduction").val("");
+        $("#releaseTime").val("");
+        $("#integrity").val("");
+        $("#id").val("");
+        $("#category").val("");
+    }
+    function  reFrom(){//重置各个参数的值
+        $("#search-bookname").val("");
+        $("#search-author").val("");
+    }
+</script>
+</html>
+

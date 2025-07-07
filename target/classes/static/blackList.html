@@ -1,0 +1,390 @@
+<!--除了增删查改外  借阅时查阅黑名单表 如果该学号存在并且位于执行状态(status=0)不能借阅
+黑名单表实现后端，借阅前端发过来学号，黑名单表负责查询
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>黑名单管理</title>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <link rel = "stylesheet" href="css/bootstrap.min.css">
+    <link rel = "stylesheet" href="css/users.css">
+    <script src="js/bootstrap.min.js"></script>
+
+</head>
+<body style="background-image: url('image/qdu.jpg'); background-size: cover">
+    <h1 style="color:greenyellow;font－family:宋体;font-weight:bold;font-size:50px">黑名单管理</h1>
+    <div class = "search_div">
+        <form class="row row-cols-lg-auto g-3 align-items-center">
+            <div class="col-12">
+                <label class="visually-hidden" for="search-studentName">studentname</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search-studentName" placeholder="请输入学生姓名">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label class="visually-hidden" for="search-speciality">speciality</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search-speciality" placeholder="请输入学生专业">
+                </div>
+            </div>
+
+
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" id="search-btn">搜索</button>
+                <button type="button" class="btn btn-secondary" id="reform">重置</button>
+            </div>
+        </form>
+        <div class="operation-div">
+            <button type="button" class="btn btn-success" id="add-btn" onclick="operate()">新增</button>
+        </div>
+        <div class="menu">
+            <ul class="center">
+                <li class="se1"><a href="HelloWorld.html">首页</a></li>
+                <li class="se2"><a href="login.html">登录</a></li>
+                <li class="se3"><a href="regist.html">注册</a></li>
+                <li class="se3"><a href="passwordChange.html">忘记密码</a></li>
+                <li class="se5"><a href="books.html">图书管理</a></li>
+                <li class="se5"><a href="lend.html">借阅管理</a></li>
+                <li class="se5"><a href="blackList.html">黑名单管理</a></li>
+                <li class="se5"><a href="order.html">订购管理</a></li>
+
+                <li class="se4">
+                    <a href="https://www.qdu.edu.cn/">联系我们</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class = "table_div">
+        <table class="table table-light table-striped-columns">
+            <thead>
+            <tr class = "table-primary">
+                <th scope="col">ID</th>
+                <th scope="col">学号</th>
+                <th scope="col">姓名</th>
+                <th scope="col">年级</th>
+                <th scope="col">专业</th>
+                <th scope="col">班级</th>
+                <th scope="col">录入原因</th>
+                <th scope="col">录入时间</th>
+                <th scope="col">解除时间</th>
+                <th scope="col">状态</th>
+                <th scope="col">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+    <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">新增</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetForm()"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <input type="text" id="id" name="id" hidden="hidden">
+                        <div class="mb-3">
+                            <label for="studentId" class="col-form-label">学号:</label>
+                            <input type="text" class="form-control" id="studentId" name ="studentId">
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentName" class="col-form-label">姓名:</label>
+                            <textarea class="form-control" id="studentName" name="studentName"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="grade" class="col-form-label">年级:</label>
+                            <textarea class="form-control" id="grade" name="grade"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="speciality" class="col-form-label">专业:</label>
+                            <textarea class="form-control" id="speciality" name="speciality"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="classes" class="col-form-label">班级:</label>
+                            <textarea class="form-control" id="classes" name="classes"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="entryReason" class="col-form-label">录入原因:</label>
+                            <textarea class="form-control" id="entryReason" name="entryReason"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="col-form-label">状态:</label>
+                            <select class="form-select" id="status">
+                                <option value="-1" name="status">请选择用户状态</option>
+                                <option value="0" name="status">执行中</option>
+                                <option value="1" name="status">已解除</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="addOrUpdate()">确认</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="..." class="rounded me-2" alt="..." id="toast-img">
+                <strong class="me-auto" id="toast-title">Bootstrap</strong>
+                <small>刚刚</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                Hello, world! This is a toast message.
+            </div>
+        </div>
+    </div>
+</body>
+<script type = "text/javascript">
+   $(document).ready(function () {
+       getUserList();
+       $("#search-btn").click(function () {
+           getUserList();
+       })
+       $("#add-btn").click(function () {
+           $("#userForm").modal("show");
+       })
+       $("#reform").click(function () {
+           reFrom();
+           getUserList();
+       })
+   })
+   function  operate(id){
+        if(id != undefined && id != ""){//更新按钮
+            $("#exampleModalLabel").text("更新用户");
+            //将id存入隐藏的输入框中
+            $("#id").val(id);
+            getById(id);
+        }else{//新增按钮
+            $("#exampleModalLabel").text("新增用户");
+            $("#userForm").modal("show");
+        }
+   }
+
+   //确认按钮到底是新增还是更新
+function addOrUpdate(){
+       var id = $("#id").val();
+       if(id != undefined && id !=""){
+           //无值则更新
+           updateSysUser();
+       }else{
+           addSysUser();
+       }
+}
+   function  getById(id){
+       $.ajax({
+           url:"http://localhost:8081/blacklist/getById",
+           type:"POST",
+           data:{
+               id
+           },
+           success:function(resp){
+               console.log(resp);
+               $("#studentId").val(resp.data.studentId);
+               $("#studentName").val(resp.data.studentName);
+               $("#grade").val(resp.data.grade);
+               $("#speciality").val(resp.data.speciality);
+               $("#classes").val(resp.data.classes);
+               $("#entryReason").val(resp.data.entryReason);
+               $("#status").val(resp.data.status).trigger("change");
+               //显示弹框
+               $("#userForm").modal("show");
+
+       }
+       })
+   }
+   function  updateSysUser(){
+       //获取用户输入
+       var studentId = $("#studentId").val();
+       var studentName = $("#studentName").val();
+       var grade = $("#grade").val();
+       var speciality = $("#speciality").val();
+       var classes = $("#classes").val();
+       var entryReason = $("#entryReason").val();
+       var status = $("option[name='status']:selected").val();
+       var id = $("#id").val();
+       //传到后端
+       $.ajax({
+           url:"http://localhost:8081/blacklist/update",
+           type:"POST",
+           data:{
+               studentId,
+               studentName,
+               grade,
+               speciality,
+               classes,
+               entryReason,
+               status,
+               id
+           },
+           success:function(resp) {
+               console.log(resp)
+               if (resp.code == 200) {
+                   //新增成功-》轻提示
+                   myToast("成功", "你刚刚更新了一条数据", true);
+                   //关闭提示框
+                   $("#userForm").modal("hide");
+                   //进行刷新
+                   getUserList();
+                   resetForm();
+                   getUserList();
+               } else if (resp.code == 500) {
+                   myToast("失败", "您的操作失败了，请稍后再试", false);
+               }
+           }
+       })
+   }
+   function addSysUser(){
+       var studentId = $("#studentId").val();
+       var studentName = $("#studentName").val();
+       var grade = $("#grade").val();
+       var speciality = $("#speciality").val();
+       var classes = $("#classes").val();
+       var entryReason = $("#entryReason").val();
+       var status = $("option[name='status']:selected").val();
+       $.ajax({
+           url:"http://localhost:8081/blacklist/add",
+           type:"POST",
+           data:{
+               studentId,
+               studentName,
+               grade,
+               speciality,
+               classes,
+               entryReason,
+               status
+           },
+           success:function(resp){
+               console.log(resp)
+               if(resp.code == 200){
+                   //新增成功-》轻提示
+                  myToast("成功","你刚刚新增了一条数据",true);
+                  //关闭提示框
+                   $("#userForm").modal("hide");
+                   //进行刷新
+                   getUserList();
+                   resetForm();
+               }else if(resp.code == 500){
+                   myToast("失败","您的操作失败了，请稍后再试",false);
+               }
+           }
+       })
+   }
+   function deleteById(id){
+        $.ajax({
+            url:"http://localhost:8081/blacklist/delete",
+            type:"POST",
+            data:{
+                id
+            },
+            success: function (resp){
+                if(resp.code == 200){
+                    myToast("成功","您刚刚删除了一条数据",true);
+                    getUserList();
+                }else if(resp.code == 500){
+                    myToast("失败","删除失败，请稍后再试",false);
+                }
+            }
+        })
+   }
+
+   function release(id){
+       $.ajax({
+           url:"http://localhost:8081/blacklist/release",
+           type:"POST",
+           data:{
+               id
+           },
+           success: function (resp){
+               if(resp.code == 200){
+                   myToast("成功","您刚刚解放了一名用户",true);
+                   getUserList();
+               }else if(resp.code == 500){
+                   myToast("失败","解放失败，请稍后再试",false);
+               }
+           }
+       })
+   }
+   function myToast(title,message,isSuccess){
+       var toastElement = $("#liveToast");
+       var toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastElement);
+       $("#toast-title").text(title);
+       $("#toast-message").text(message);
+       if(isSuccess) {
+           $("#toast-img").attr("src", "./image/success.png")
+       }else{
+           $("#toast-img").attr("src", "./image/fail.png")
+       }
+       toastBootstrap.show();
+   }
+   function getUserList(){
+       var studentName = $("#search-studentName").val();
+       var speciality = $("#search-speciality").val();
+        $.ajax({
+            url:"http://localhost:8081/blacklist/list",
+            type:"POST",
+            data:{
+                studentName:studentName,
+                speciality
+            },
+            success:function (resp){
+                console.log(resp);
+                var userList = resp.data;
+                var htmlStr = " ";
+                userList.forEach((item,index)=>{
+                    htmlStr += "<tr>";
+                    htmlStr += "<td>"+item.id+"</td>";
+                    htmlStr += "<td>"+item.studentId+"</td>";
+                    htmlStr += "<td>"+item.studentName+"</td>";
+                    htmlStr += "<td>"+item.grade+"</td>";
+                    htmlStr += "<td>"+item.speciality+"</td>";
+                    htmlStr += "<td>"+item.classes+"</td>";
+                    htmlStr += "<td>"+item.entryReason+"</td>";
+                    htmlStr += "<td>"+item.entryTime+"</td>";
+                    htmlStr += "<td>"+item.releaseTime+"</td>";
+                    if(item.status == 0){
+                        htmlStr += "<td>执行中</td>";
+                    }else if(item.status == 1){
+                        htmlStr += "<td>已解除</td>"
+                    }
+                    htmlStr +="<td>"+
+                        "<button type = 'button' class='btn btn-success btn-sm' onclick = 'operate("+item.id+")'>修改</button>"+
+                        "<button type = 'button' class='btn btn-warning btn-sm' onclick='release("+item.id+")'>解除</button>"+
+                        "<button type = 'button' class='btn btn-danger btn-sm' onclick='deleteById("+item.id+")'>删除</button>"+
+                        "</td>";
+                    htmlStr += "</tr>";
+                })
+                $("tbody").html(htmlStr)
+            }
+        })
+   }
+   //每次新增完，清空Form表单
+   function  resetForm(){//重置各个参数的值
+       $("#id").val("");
+       $("#studentId").val("");
+       $("#studentName").val("");
+       $("#grade").val("");
+       $("#speciality").val("");
+       $("#classes").val("");
+       $("#entryReason").val("");
+       $("option[name='status']").removeAttr("selected");
+       $("option[name='status']:first").attr("selected","selected");
+   }
+   function  reFrom(){//重置各个参数的值
+       $("#search-studentName").val("");
+       $("#search-speciality").val("");
+   }
+
+</script>
+</html>

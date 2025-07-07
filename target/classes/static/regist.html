@@ -1,0 +1,185 @@
+<!--本页面实现注册功能
+1 用户输入全部信息后，到后端数据库添加该条用户数据，发布成功轻提示
+2 实现了验证码矫正功能 及验证码必须输入图片对应的7364否则报失败轻提示
+3 并且实现了 username查重，如果数据库中存在username则报告重复轻提示
+注册完后点击已有帐号/立即登录,跳转到登录(login.html)登录
+Created by liushuai in 2023/12/18
+
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/regist.css">
+    <link rel="shortcut icon" href="image/img.png">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- 引入users 的 CSS文件 -->
+    <link rel="stylesheet" href="css/users.css">
+    <!-- 引入Bootstrap的 JS文件 -->
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body style="background-image: url('image/qdu.jpg'); background-size: cover" >
+<!--头部-->
+<div id="reg_header">
+    <div class="reg_h_center">
+        <div class="reg_h_left">
+            <img src="image/logo3.png" alt="青岛大学图书馆" class="fl">
+            <h3>欢迎注册</h3>
+        </div>
+    </div>
+</div>
+
+
+<!--表单内容-->
+<div class="reg_back">
+    <div class="reg_left">
+        <p>新用户注册</p>
+        <p>USER REGISTER</p>
+    </div>
+    <div class="reg_center">
+        <div class="reg_form">
+            <form action="#" method="post">
+                <table>
+                    <tr>
+                        <td class="td_left"><label for="username">用户名</label></td>
+                        <td class="td_right"><input type="text" name="username" placeholder="请输入用户名"
+                                                    id="username"></td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="password">密码</label></td>
+                        <td class="td_right"><input type="password" name="password" placeholder="请输入密码"
+                                                    id="password"></td>
+                    </tr>
+<!--                    <tr>-->
+<!--                        <td class="td_left"><label for="Email">Email</label></td>-->
+<!--                        <td class="td_right"><input type="email" name="email" placeholder="请输入Email" id="Email">-->
+<!--                        </td>-->
+<!--                    </tr>-->
+                    <tr>
+                        <td class="td_left"><label for="realName">姓名</label></td>
+                        <td class="td_right"><input type="text" name="realName" placeholder="请输入真实姓名" id="realName">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="age">年龄</label></td>
+                        <td class="td_right"><input type="text" name="age" placeholder="请输入您的年龄"
+                                                    id="age"></td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="gender" class="col-form-label">性别:</label>
+                        <td class="td_right"><select class="form-select" id="gender">
+                        <option value="-1" name="gender">请选择性别</option>
+                        <option value="1" name="gender">男</option>
+                        <option value="0" name="gender">女</option>
+                    </select>
+                        </td>
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                        <td class="td_left"><label for="Birthday">出生日期</label></td>-->
+<!--                        <td class="td_right"><input type="date" name="birthday" id="Birthday"></td>-->
+<!--                    </tr>-->
+
+                    <tr>
+                        <td class="td_left"><label for="checkcode">验证码</label></td>
+                        <td class="td_right"><input type="text" name="checkcode" id="checkcode">
+                            <img src="image/code.png" id="img_check"></td>
+                        <!-- png为验证码图片 -->
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center"><input type="submit" value="注册" id="btn_sub" onclick="addSysuser()"></td>
+
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div class="reg_right">
+        <p>已有账号?<a href="login.html">立即登录</a></p>
+    </div>
+</div>
+<!--   顷提示-->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="..." id="toast-img">
+            <strong class="me-auto" id="toast-title">Bootstrap</strong>
+            <small>刚刚</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            Hello, world! This is a toast message.
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    function addSysuser()
+    {//添加用户
+        console.log("checkcode")
+        event.preventDefault();
+        //1获取用户的值
+        var username=$("#username").val();
+        var password=$("#password").val();
+        var realName=$("#realName").val();
+        var age=$("#age").val();
+        var gender=$("option[name='gender']:selected").val();
+        // gender=
+        gender = gender==-1? "":gender;
+        var checkcode=$("#checkcode").val();
+        console.log("checkcode")
+
+        console.log(checkcode)
+        if (checkcode!="7364") {
+            myToast("错误！","您输入的验证码错误,请重试",false);
+            return
+        }
+
+        $.ajax({
+            url:"http://localhost:8081/user/add",
+            type:"POST",
+            data: {
+                username,password,realName,age,gender
+            },
+            success:function (resp)
+            {
+                console.log("hhhhh");
+                if(resp.code==200)   //新增成功 打开轻提示
+                {
+                    console.log("成功注册");
+                    myToast("成功！","注册成功，请点击右上角返回登录！",true);
+
+                }
+                else if(resp.code==500)
+                {
+                    console.log("注册失败")
+                    myToast("失败！","您刚刚注册失败，请稍后再试",false);
+                }
+                else
+                {
+                    myToast("失败！","您的用户名重复，请更换用户名",false);
+
+                }
+            }
+        })
+    }
+    function myToast(title,message,isSuccess)
+    {
+        var toastElement=$("#liveToast");
+        var toastBooststrap=bootstrap.Toast.getOrCreateInstance(toastElement);
+
+        $("#toast-title").text(title);
+        $("#toast-message").text(message);
+        if(isSuccess)
+            $("#toast-img").attr("src","./image/success.png")
+        else
+            $("#toast-img").attr("src","./image/fail.png")
+
+        toastBooststrap.show();
+    }
+</script>
+</html>

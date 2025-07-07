@@ -1,0 +1,72 @@
+CREATE TABLE `sys_book_manage` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `bookname` varchar(64) DEFAULT NULL,
+  `author` varchar(64) DEFAULT NULL,
+  `category` varchar(64) DEFAULT NULL,
+  `book introduction` varchar(64) DEFAULT NULL,
+	`integrity` int DEFAULT NULL,
+  `release_time` datetime DEFAULT NULL,
+	  `storage_time` datetime DEFAULT NULL,
+
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+
+
+CREATE TABLE `sys_black_list` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `student_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `student_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `grade` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `speciality` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `classes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `entry_reason` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `entry_time` datetime DEFAULT NULL,
+  `release_time` datetime DEFAULT NULL,
+  `status` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
+CREATE TABLE `book_order` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+	`book_number` int(10) DEFAULT NULL,
+  `book_name` varchar(32) DEFAULT NULL,
+  `publisher` varchar(32) DEFAULT NULL,
+  `author` varchar(10) DEFAULT NULL,
+  `release_time` datetime DEFAULT NULL ,
+	`book_introduction` varchar(32) DEFAULT NULL,
+	`order_number` int(10)	DEFAULT NULL,
+	`order_time` datetime DEFAULT NULL,
+  `arrival_time` datetime DEFAULT NULL,
+  `status` VARCHAR(10) DEFAULT NULL ,
+
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+CREATE TABLE `lending_management` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+	`book_id` int(11) DEFAULT NULL,
+	`book_name` varchar(256) DEFAULT NULL,
+  `borrower_name` varchar(256) DEFAULT NULL,
+	`borrower_id` varchar(128) DEFAULT NULL,
+  `borrower_faculty` varchar(256) DEFAULT NULL,
+	`borrower_grade` varchar(128) DEFAULT NULL,
+	`borrower_profession` varchar(256) DEFAULT NULL,
+	`borrower_class` varchar(128) DEFAULT NULL,
+	`lend_time` datetime DEFAULT NULL,
+	`should_return_time` datetime DEFAULT NULL,
+	`real_return_time` datetime DEFAULT NULL,
+	`status` int(1) DEFAULT NULL COMMENT '0:未归还 1:已归还 2:已延期 3:无法归还',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

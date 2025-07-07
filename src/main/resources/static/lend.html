@@ -1,0 +1,439 @@
+<!--除了增删查改外  借阅时查阅黑名单表 如果该学号存在并且位于执行状态(status=0)不能借阅-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>借阅管理</title>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <!-- 引入Bootstrap的 CSS文件 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- 引入users 的 CSS文件 -->
+    <link rel="stylesheet" href="css/users.css">
+    <!-- 引入Bootstrap的 JS文件 -->
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body style="background-image: url('image/qdu.jpg'); background-size: cover">
+<!-- 搜索框 -->
+<h1 style="color:greenyellow;font－family:宋体;font-weight:bold;font-size:50px">借阅管理</h1>
+
+<div class="menu">
+    <ul class="center">
+        <li class="se2"><a href="HelloWorld.html">首页</a></li>
+        <li class="se2"><a href="login.html">登录</a></li>
+        <li class="se3"><a href="regist.html">注册</a></li>
+        <li class="se3"><a href="passwordChange.html">忘记密码</a></li>
+        <li class="se5"><a href="books.html">图书管理</a></li>
+        <li class="se5"><a href="lend.html">借阅管理</a></li>
+        <li class="se5"><a href="blackList.html">黑名单管理</a></li>
+        <li class="se5"><a href="order.html">订购管理</a></li>
+
+        <li class="se4">
+            <a href="https://www.qdu.edu.cn/">联系我们</a>
+        </li>
+    </ul>
+</div>
+<div class="search-div">
+    <form class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="col-12">
+            <label class="visually-hidden" for="search-borrowerName">Borrowername</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="search-borrowerName" placeholder="请输入借阅者姓名">
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label class="visually-hidden" for="search-bookName">Bookname</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="search-bookName" placeholder="请输入书名">
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label class="visually-hidden" for="search-bookId">Bookname</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="search-bookId" placeholder="请输入图书ID">
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button type="button" class="btn btn-primary" id="search-btn">搜索</button>
+            <button type="button" class="btn btn-secondary">重置</button>
+        </div>
+    </form>
+    <div class="operation-div">
+        <button type="button" class="btn btn-success" id="add-btn" onclick="operate()">新增</button>
+    </div>
+</div>
+<div class="modal fade" id="lendForm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">新增</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetForm()"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="text" id="id" name="id" hidden="hidden">
+                    <div class="mb-3">
+                        <label for="bookId" class="col-form-label">图书ID:</label>
+                        <input type="text" class="form-control" id="bookId" name="bookId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookName" class="col-form-label">书名:</label>
+                        <input type="text" class="form-control" id="bookName" name="bookName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="borrowerName" class="col-form-label">借阅者姓名:</label>
+                        <input class="form-control" id="borrowerName" name="borrowerName"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="borrowerId" class="col-form-label">借阅者学号:</label>
+                        <input class="form-control" id="borrowerId" name="borrowerId"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="borrowerFaculty" class="col-form-label">所属学院:</label>
+                        <input class="form-control" id="borrowerFaculty" name="borrowerFaculty"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="borrowerGrade" class="col-form-label">年级:</label>
+                        <input class="form-control" id="borrowerGrade" name="borrowerGrade"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="borrowerProfession" class="col-form-label">专业:</label>
+                        <input class="form-control" id="borrowerProfession" name="borrowerProfession"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="borrowerClass" class="col-form-label">班级:</label>
+                        <input class="form-control" id="borrowerClass" name="borrowerClass"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shouldReturnTime" class="col-form-label">应归还时间:</label>
+                        <input type="date" class="form-control" id="shouldReturnTime" name="shouldReturnTime"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="realReturnTime" class="col-form-label">实际归还时间:</label>
+                        <input type="date" class="form-control" id="realReturnTime" name="realReturnTime"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="col-form-label">状态:</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="-1" name="status">请选择状态</option>
+                            <option value="0" name="status">未归还</option>
+                            <option value="1" name="status">已归还</option>
+                            <option value="2" name="status">已延期</option>
+                            <option value="3" name="status">无法归还</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addOrUpdate()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-div">
+    <table class="table table-light table-striped-columns">
+        <thead>
+        <tr class = "table-primary">
+            <th scope="col">ID</th>
+            <th scope="col">图书ID</th>
+            <th scope="col">书名</th>
+            <th scope="col">借阅者姓名</th>
+            <th scope="col">借阅者学号</th>
+            <th scope="col">所在学院</th>
+            <th scope="col">年级</th>
+            <th scope="col">专业</th>
+            <th scope="col">班级</th>
+            <th scope="col">借阅时间</th>
+            <th scope="col">应归还时间</th>
+            <th scope="col">实际归还时间</th>
+            <th scope="col">状态</th>
+            <th scope="col">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="..." id="toast-img">
+            <strong class="me-auto" id="toast-title">提示</strong>
+            <small>刚刚</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            新增一条数据
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        getLendList();
+        $("#search-btn").click(function () {
+            getLendList();
+        })
+        $("#add-btn").click(function () {
+            $("#lendForm").modal("show");
+        })
+    })
+    function operate(id){
+        if(id!=undefined && id!=""){
+            //更新
+            $("#exampleModalLabel").text("更新借阅信息");
+            $("#id").val(id);
+            getById(id);
+        }else{
+            //新增
+            $("#exampleModalLabel").text("新增借阅信息");
+            $("#lendForm").modal("show");
+        }
+    }
+    function addOrUpdate(){
+        var id=$("#id").val();
+        if(id!=undefined&&id!=""){
+            updateLend();
+        }
+        else{
+            addLend();
+        }
+    }
+    function getById(id){
+        $.ajax({
+            url:"http://localhost:8081/lend/getById",
+            type:"POST",
+            data:{
+                id
+            },
+            success:function (resp){
+                console.log(resp);
+                $("#bookId").val(resp.data.bookId);
+                $("#bookName").val(resp.data.bookName);
+                $("#borrowerName").val(resp.data.borrowerName);
+                $("#borrowerId").val(resp.data.borrowerId);
+                $("#borrowerFaculty").val(resp.data.borrowerFaculty);
+                $("#borrowerGrade").val(resp.data.borrowerGrade);
+                $("#borrowerProfession").val(resp.data.borrowerProfession);
+                $("#borrowerClass").val(resp.data.borrowerClass);
+                $("#shouldReturnTime").val(resp.data.shouldReturnTime);
+                $("#realReturnTime").val(resp.data.realReturnTime);
+                $("#status").val(resp.data.status).trigger("change");
+                $("#lendForm").modal("show");
+            }
+        })
+    }
+    function ifCanBorrow(callback) {//判断是否能借阅
+        var borrowerId=$("#borrowerId").val();
+        var studentId = borrowerId.toString();
+        console.log(studentId)
+        $.ajax({
+            url: "http://localhost:8081/blacklist/HaveUser",
+            type: "POST",
+            data: {
+                studentId: studentId
+            },
+
+            success:function (resp)
+            {
+                if(resp.code==200)   //在黑名单内 不能借阅
+                {
+                    console.log("false")
+                    callback(false);
+                }
+                else
+                {
+                    console.log("true")
+                    callback(true);
+                }
+            }
+
+        })}
+
+    function addLend(){
+        var bookId=$("#bookId").val();
+        var bookName=$("#bookName").val();
+        var borrowerName=$("#borrowerName").val();
+        var borrowerId=$("#borrowerId").val();
+        var borrowerFaculty=$("#borrowerFaculty").val();
+        var borrowerGrade=$("#borrowerGrade").val();
+        var borrowerProfession=$("#borrowerProfession").val();
+        var borrowerClass=$("#borrowerClass").val();
+        var shouldReturnTime=$("#shouldReturnTime").val();
+        var realReturnTime=$("#realReturnTime").val();
+        var status=$("option[name='status']:selected").val();
+        status = status==-1 ? "" :status;
+        console.log("111111111111")
+            ifCanBorrow(function(canBorrow) {
+                if (!canBorrow) {
+                    myToast("失败", "此学号是黑名单用户，不能借阅", false);
+                } else {
+                    $.ajax({
+                        url: "http://localhost:8081/lend/add",
+                        type: "POST",
+                        data: {
+                            bookId, bookName, borrowerName, borrowerId, borrowerFaculty, borrowerGrade,
+                            borrowerProfession, borrowerClass, shouldReturnTime, realReturnTime, status
+                        },
+                        success: function(resp) {
+                            if (resp.code == 200) {
+                                myToast("成功", "新增了一条借阅信息", true);
+                                //关闭提示框
+                                $("#lendForm").modal("hide");
+                                //自动刷新
+                                getLendList();
+                                //清空表单数据
+                                resetForm();
+                            } else if (resp.code == 500) {
+                                myToast("新增时出现错误", "请检查连接或稍后重试", false);
+                            }
+                        }
+                    });
+                }
+            });
+    }
+    function updateLend(){
+        var bookId=$("#bookId").val();
+        var bookName=$("#bookName").val();
+        var borrowerName=$("#borrowerName").val();
+        var borrowerId=$("#borrowerId").val();
+        var borrowerFaculty=$("#borrowerFaculty").val();
+        var borrowerGrade=$("#borrowerGrade").val();
+        var borrowerProfession=$("#borrowerProfession").val();
+        var borrowerClass=$("#borrowerClass").val();
+        var shouldReturnTime=$("#shouldReturnTime").val();
+        var realReturnTime=$("#realReturnTime").val();
+        var status=$("option[name='status']:selected").val();
+        var id=$("#id").val();
+        $.ajax({
+            url:"http://localhost:8081/lend/update",
+            type:"POST",
+            data:{
+                bookId,bookName,borrowerName,borrowerId,borrowerFaculty,borrowerGrade,
+                borrowerProfession,borrowerClass,shouldReturnTime,realReturnTime,status,id
+            },
+            success: function (resp) {
+                if(resp.code==200){
+                    myToast("成功","更新成功",true);
+                    //关闭提示框
+                    $("#lendForm").modal("hide");
+                    //自动刷新
+                    getLendList();
+                    //清空表单数据
+                    resetForm();
+                }else if(resp.code==500){
+                    myToast("更新时出现错误","请检查连接或稍后重试",false);
+                }
+            }
+        })
+    }
+    function deleteLendById(id){
+        $.ajax({
+            url:"http://localhost:8081/lend/delete",
+            type:"POST",
+            data:{
+                id
+            },
+            success: function (resp){
+                if(resp.code==200){
+                    myToast("删除成功","已删除借阅信息",true);
+                    getLendList();
+                }else{
+                    myToast("删除失败","请检查连接或稍后重试",false);
+                }
+            }
+        })
+    }
+    function myToast(title,message,isSuccess){
+        var toastElement=$("#liveToast");
+        var toastBootstrap=bootstrap.Toast.getOrCreateInstance(toastElement);
+        $("#toast-title").text(title);
+        $("#toast-message").text(message);
+        if(isSuccess){
+            $("#toast-img").attr("src","./image/success.png");
+        }else{
+            $("#toast-img").attr("src","./image/fail.png");
+        }
+        toastBootstrap.show()
+    }
+    function getLendList() {
+        var bookId=$("#search-bookId").val();
+        var bookName=$("#search-bookName").val();
+        var borrowerName=$("#search-borrowerName").val();
+        $.ajax({
+            url:"http://localhost:8081/lend/list",
+            type:"POST",
+            data:{
+                bookId,
+                bookName,
+                borrowerName
+            },
+            success:function (resp) {
+                console.log(resp);
+                var lendList =resp.data;
+                var htmlStr="";
+                lendList.forEach((item,index)=>{
+                    htmlStr+="<tr>";
+                    htmlStr+="<th>"+item.id+"</th>";
+                    htmlStr+="<td>"+item.bookId+"</td>";
+                    htmlStr+="<td>"+item.bookName+"</td>>";
+                    htmlStr+="<td>"+item.borrowerName+"</td>";
+                    htmlStr+="<td>"+item.borrowerId+"</td>";
+                    htmlStr+="<td>"+item.borrowerFaculty+"</td>";
+                    htmlStr+="<td>"+item.borrowerGrade+"</td>";
+                    htmlStr+="<td>"+item.borrowerProfession+"</td>";
+                    htmlStr+="<td>"+item.borrowerClass+"</td>>";
+                    htmlStr+="<td>"+item.lendTime+"</td>>";
+                    htmlStr+="<td>"+item.shouldReturnTime+"</td>>";
+                    if(item.realReturnTime==null||item.realReturnTime==""){
+                        htmlStr+="<td>尚未归还</td>>";
+                    }else{htmlStr+="<td>"+item.realReturnTime+"</td>>";}
+                    if(item.status==0){
+                        htmlStr+="<td>未归还</td>>";
+                    }
+                    if(item.status==1){
+                        htmlStr+="<td>已归还</td>>";
+                    }
+                    if(item.status==2){
+                        htmlStr+="<td>已延期</td>>";
+                    }
+                    if(item.status==3){
+                        htmlStr+="<td>无法归还</td>>";
+                    }
+                    <!--操作列-->
+                    htmlStr+="<td>"+
+                        "<button type='button' class='btn btn-success btn-sm' onclick='operate("+item.id+")'>更新</button>"+
+                        "<button type='button' class='btn btn-danger btn-sm' onclick='deleteLendById("+item.id+")'>删除</button>"+
+                        "</td>";
+                    htmlStr+="</tr>";
+                })
+                //将htmlStr放入tbody标签
+                $("tbody").html(htmlStr)
+            },
+            error:function (error){
+                console.log(error)
+            }
+        })
+    }
+    function resetForm() {
+        $("#id").val("");
+        $("#bookId").val("");
+        $("#bookName").val("");
+        $("#borrowerName").val("");
+        $("#borrowerId").val("");
+        $("#borrowerFaculty").val("");
+        $("#borrowerGrade").val("");
+        $("#borrowerProfession").val("");
+        $("#borrowerClass").val("");
+        $("#shouldReturnTime").val("");
+        $("#realReturnTime").val("");
+        $("option[name='status']").removeAttr("selected");
+        $("option[name='status']:first").attr("selected", "selected");
+    }
+</script>
+</html>

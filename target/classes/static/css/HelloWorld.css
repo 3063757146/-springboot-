@@ -1,0 +1,72 @@
+/*link布局*/
+.menu {
+    position: relative;
+}
+
+ul.center {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+ul.center li {
+    display: inline;
+    margin-left: 20px;
+}
+
+ul.center li:last-child {
+    margin-right: 0;
+}
+
+.content {
+    margin: 50px;
+    padding: 10px;
+    border: none;
+}
+
+.bar2 {
+    background-color: transparent;
+    padding: 5px;
+}
+
+h3 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.pad {
+    font-size: 20px;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.pad p {
+    margin: 0;
+}
+
+.pad strong {
+    font-weight: bold;
+}
+
+.pad em {
+    font-style: italic;
+}
+
+.pad a {
+    color: #0077cc;
+    text-decoration: none;
+}
+
+.pad a:hover {
+    text-decoration: underline;
+}
+
+.pad img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+}
+

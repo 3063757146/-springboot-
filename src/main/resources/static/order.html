@@ -1,0 +1,452 @@
+<!--除了增删查改外  订购时候如果是已入库状态 则图书表增加订购数量个条目，
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订购管理</title>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/users.css">
+    <script src="./js/bootstrap.min.js"></script>
+</head>
+
+<body style="background-image: url('image/qdu.jpg'); background-size: cover">
+<h1 style="color:greenyellow;font－family:宋体;font-weight:bold;font-size:50px">订购管理</h1>
+
+
+<div class="menu">
+    <ul class="center">
+        <li class="se2"><a href="HelloWorld.html">首页</a></li>
+        <li class="se2"><a href="login.html">登录</a></li>
+        <li class="se3"><a href="regist.html">注册</a></li>
+        <li class="se3"><a href="passwordChange.html">忘记密码</a></li>
+        <li class="se5"><a href="books.html">图书管理</a></li>
+        <li class="se5"><a href="lend.html">借阅管理</a></li>
+        <li class="se5"><a href="blackList.html">黑名单管理</a></li>
+        <li class="se5"><a href="order.html">订购管理</a></li>
+
+        <li class="se4">
+            <a href="https://www.qdu.edu.cn/">联系我们</a>
+        </li>
+    </ul>
+</div>
+
+<!-- 搜索框 -->
+<div class="search-div">
+    <form class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="col-12">
+            <label class="visually-hidden" for="search-bookName">Username</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="search-bookName" placeholder="请输入书名">
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="button" class="btn btn-primary" id="search-btn"onclick="getUserList()">搜索</button>
+            <button type="button" class="btn btn-secondary">重置</button>
+        </div>
+        <div class="operation-div">
+            <button type="button" class="btn btn-success" id="add-btn" onclick="operate()">新增</button>
+        </div>
+    </form>
+</div>
+<div class="table-div">
+    <table class="table table-light table-striped-columns">
+        <thead>
+        <tr class = "table-primary">
+            <th scope="col">ID</th>
+            <th scope="col">图书编号</th>
+            <th scope="col">书名</th>
+            <th scope="col">出版社</th>
+            <th scope="col">作者</th>
+            <th scope="col">发行时间</th>
+            <th scope="col">图书简介</th>
+            <th scope="col">订购数量</th>
+            <th scope="col">订购时间</th>
+            <th scope="col">到货时间</th>
+            <th scope="col">状态</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">新增</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetForm()"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <!-- 添加一个隐藏的id输入框 -->
+                    <input type="text" id="id" name="id" hidden="hidden">
+                    <div class="mb-3">
+                        <label for="bookNumber" class="col-form-label">图书编号:</label>
+                        <input class="form-control" id="bookNumber" name="bookNumber"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookName" class="col-form-label">书名:</label>
+                        <input class="form-control" id="bookName" name="bookName"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="publisher" class="col-form-label">出版社:</label>
+                        <input class="form-control" id="publisher" name="publisher"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="author" class="col-form-label">作者:</label>
+                        <input class="form-control" id="author" name="author"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="releaseTime" class="col-form-label">发行时间:</label>
+                        <input type="date" class="form-control" id="releaseTime" name="releaseTime"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookIntroduction" class="col-form-label">图书简介:</label>
+                        <input class="form-control" id="bookIntroduction" name="bookIntroduction"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderNumber" class="col-form-label">订购数量:</label>
+                        <input class="form-control" id="orderNumber" name="orderNumber"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderTime" class="col-form-label">订购时间:</label>
+                        <input type="date" class="form-control" id="orderTime" name="orderTime"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="arrivalTime" class="col-form-label">到货时间:</label>
+                        <input type="date" class="form-control" id="arrivalTime" name="arrivalTime"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="col-form-label">状态:</label>
+                        <select class="form-select" id="status">
+                            <option value="-1" name="status">请选择用户状态</option>
+                            <option value="0" name="status">订购中</option>
+                            <option value="1" name="status">已入库</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addOrUpdate()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--   轻提示-->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="..." id="toast-img">
+            <strong class="me-auto" id="toast-title">Bootstrap</strong>
+            <small>刚刚</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">a
+            Hello, world! This is a toast message.
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function (){
+        // JQuery
+        // ready -> 当页面元素全部加载完成时 自动执行
+        getUserList();
+    })
+    function getUserList(){
+        // 获取条件输入框中的数据
+        var bookName = $("#search-bookName").val();
+        $.ajax({
+            url:"http://localhost:8081/order/list",
+            type:"POST",
+            data:{
+                // 请求携带的参数
+                bookName:bookName,
+            },
+            // 回调函数
+            success: function (resp){
+                console.log(resp);
+                // 获取到用户的列表数据
+                var orderList = resp.data;
+                // 要组装的 html
+                var htmlStr = "";
+                orderList.forEach((item,index)=>{
+                    // item 当前正在循环的元素
+                    // index 当前元素的下标
+                    htmlStr += "<tr>";
+                    htmlStr += "<th>"+item.id+"</th>";
+                    htmlStr += "<td>"+item.bookNumber+"</td>";
+                    htmlStr += "<td>"+item.bookName+"</td>";
+                    htmlStr += "<td>"+item.publisher+"</td>";
+                    htmlStr += "<td>"+item.author+"</td>";
+                    htmlStr += "<td>"+item.releaseTime+"</td>";
+                    htmlStr += "<th>"+item.bookIntroduction+"</th>";
+                    htmlStr += "<td>"+item.orderNumber +"</td>";
+                    htmlStr += "<td>"+item.orderTime+"</td>";
+                    htmlStr += "<td>"+item.arrivalTime+"</td>";
+                    if(item.status == 0){
+                        htmlStr += "<td>订购中</td>";
+                    }else if(item.status == 1){
+                        htmlStr += "<td>已入库</td>"
+                    }
+                    <!-- 操作列 -->
+                    htmlStr += "<td>" +
+                        "<button type='button' class='btn btn-success btn-sm' onclick='operate("+item.id+")'>更新</button>" +
+                        "<button type='button' class='btn btn-danger btn-sm' onclick='deleteById("+item.id+")'>删除</button>" +
+                        "</td>";
+                    htmlStr += "</tr>";
+                })
+                // 将htmlStr放入tbody标签
+                $("tbody").html(htmlStr)
+            },
+            error: function (error){
+                console.log(error)
+            }
+        })
+    }
+    function operate(id){
+        // 区分 新增按钮 更新按钮?
+        if(id != undefined && id != ""){
+            // 更新按钮
+            $("#exampleModalLabel").text("更新用户");
+            // 将id存入隐藏的输入框中
+            $("#id").val(id);
+            getById(id);
+        }else{
+            // 新增按钮
+            $("#exampleModalLabel").text("新增用户");
+            $("#userForm").modal("show");
+        }
+    }
+    function getById(id){
+        $.ajax({
+            url:"http://localhost:8081/order/getById",
+            type:"POST",
+            data:{
+                id
+            },
+            success:function (resp){
+                console.log(resp);
+                // 数据的回显
+                $("#bookNumber").val(resp.data.bookNumber);
+                $("#bookName").val(resp.data.bookName);
+                $("#publisher").val(resp.data.publisher);
+                $("#author").val(resp.data.author);
+                $("#releaseTime").val(resp.data.releaseTime);
+                $("#bookIntroduction").val(resp.data.bookIntroduction);
+                $("#orderNumber").val(resp.data.orderNumber);
+                $("#orderTime").val(resp.data.orderTime);
+                $("#arrivalTime").val(resp.data.arrivalTime);
+                $("#status").val(resp.data.status).trigger("change");
+                // 显示弹框
+                $("#userForm").modal("show");
+            }
+        })
+    }
+    function addOrUpdate(){
+        // 获取隐藏输入框中的id
+        var id = $("#id").val();
+        if(id != undefined && id != ""){
+            // 更新
+            updateBookOrder();
+        }else{
+            addBookOrder();
+        }
+    }
+    function addBook()
+    {//添加用户)
+        //1获取用户的值
+        var bookname=$("#bookName").val();
+        var author=$("#author").val();
+        var bookIntroduction=$("#bookIntroduction").val();
+        var releaseTimeInput = $("#releaseTime").val(); // 获取HTML输入元素的值
+        var releaseTime = new Date(releaseTimeInput); // 将字符串解析为Date对象
+        $.ajax({
+            url:"http://localhost:8081/book/add",
+            type:"POST",
+            data: {
+                bookname:bookname,
+                author:author,
+                bookIntroduction:bookIntroduction,
+                releaseTime:releaseTime,
+                integrity:100,
+                category:"小说"
+            },
+            success:function (resp)
+            {
+                console.log(resp);
+
+                if(resp.code==200)   //新增成功 打开轻提示
+                {
+                   console.log("1")
+                }
+                else
+                {
+                    console.log("0")
+                }
+            }
+        })
+        //2发生ajax的值 并且携带上值
+    }
+
+    /**
+     * 添加用户
+     */
+    function addBookOrder(){
+
+        var bookNumber = $("#bookNumber").val();
+        var bookName = $("#bookName").val();
+        var publisher = $("#publisher").val();
+        var author = $("#author").val();
+        var releaseTime = $("#releaseTime").val();
+        var bookIntroduction = $("#bookIntroduction").val();
+        var orderNumber = $("#orderNumber").val();
+        var orderTime = $("#orderTime").val();
+        var arrivalTime = $("#arrivalTime").val();
+        var status = $("option[name='status']:selected").val();
+        if(status==1)
+        {//图书表新增
+            for(var i=0;i<orderNumber;i++)
+            addBook();
+        }
+        console.log("2222222222")
+        $.ajax({
+            url:"http://localhost:8081/order/add",
+            type: "POST",
+            data: {
+                bookNumber:bookNumber,
+                bookName:bookName,
+                publisher:publisher,
+                author:author,
+                releaseTime:releaseTime,
+                bookIntroduction:bookIntroduction,
+                orderNumber:orderNumber,
+                orderTime:orderTime,
+                arrivalTime:arrivalTime,
+                status:status,
+            },
+            success: function (resp){
+                console.log(resp)
+                if(resp.code == 200){
+                    myToast("成功","您刚刚新增了一条数据",true)
+                    // 关闭提示框
+                    $("#userForm").modal("hide");
+                    // 自动刷新数据
+                    getUserList();
+                    // 清空表单数据
+                    resetForm();
+                }else if(resp.code == 500){
+                    myToast("失败","您的操作失败了,请稍后再试",false)
+                }
+            }
+        })
+    }
+    function deleteById(id){
+        $.ajax({
+            url:"http://localhost:8081/order/delete",
+            type:"POST",
+            data:{
+                id
+            },
+            success: function (resp){
+                if(resp.code == 200){
+                    // 删除成功
+                    myToast("成功","您刚刚删除了一条数据",true);
+                    getUserList();
+                }else{
+                    myToast("失败","您的操作失败了，请稍后重试",false);
+                }
+            }
+
+        })
+    }
+    function updateBookOrder(){
+        // 1.获取用户输入的值
+        var bookNumber = $("#bookNumber").val();
+        var bookName = $("#bookName").val();
+        var publisher = $("#publisher").val();
+        var author = $("#author").val();
+        var releaseTime = $("#releaseTime").val();
+        var bookIntroduction = $("#bookIntroduction").val();
+        var orderNumber = $("#orderNumber").val();
+        var orderTime = $("#orderTime").val();
+        var arrivalTime = $("#arrivalTime").val();
+        var status = $("option[name='status']:selected").val();
+        // 获取隐藏的id值
+        var id = $("#id").val();
+        $.ajax({
+            url: "http://localhost:8081/order/update",
+            type: "POST",
+            data: {
+                bookNumber,bookName,publisher,author,releaseTime,
+                bookIntroduction,orderNumber,orderTime,arrivalTime,status,id
+            },
+            success: function (resp){
+                console.log(resp)
+                if(resp.code == 200){
+                    myToast("成功","您刚刚更新了一条数据",true)
+                    // 关闭提示框
+                    $("#userForm").modal("hide");
+                    // 自动刷新数据
+                    getUserList();
+                    // 清空表单数据
+                    resetForm();
+                }else if(resp.code == 500){
+                    myToast("失败","您的操作失败了,请稍后再试",false)
+                }
+            }
+        })
+    }
+    /**
+     * 提示框公共方法
+     * @param title
+     * @param message
+     * @param isSuccess
+     */
+    function myToast(title,message,isSuccess){
+        // 新增成功 -> 打开轻提示
+        var toastElement = $("#liveToast");
+        var toastBootstrap
+            = bootstrap.Toast.getOrCreateInstance(toastElement);
+        $("#toast-title").text(title);
+        $("#toast-message").text(message);
+        if(isSuccess){
+            $("#toast-img").attr("src","./image/success.png");
+        }else{
+            $("#toast-img").attr("src","./image/fail.png");
+        }
+        // 显示
+        toastBootstrap.show()
+    }
+    /**
+     * 获取用户列表
+     */
+
+
+    /**
+     * 每次新增完，清空form表单
+     */
+    function resetForm(){
+
+        // 重置一下隐藏ID的值
+        $("#id").val("");
+        $("#bookNumber").val("");
+        $("#bookName").val("");
+        $("#publisher").val("");
+        $("#author").val("");
+        $("#releaseTime").val("");
+        $("#bookIntroduction").val("");
+        $("#orderNumber").val("");
+        $("#orderTime").val("");
+        $("#arrivalTime").val("");
+        $("option[name='status']:first").attr("selected","selected");
+    }
+</script>
+</html>

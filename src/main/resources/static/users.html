@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <!-- 引入JQuery -->
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <!-- 引入Bootstrap的 CSS文件 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- 引入users 的 CSS文件 -->
+    <link rel="stylesheet" href="css/users.css">
+    <!-- 引入Bootstrap的 JS文件 -->
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body>
+    <!-- 搜索框 -->
+    <div class="search-div">
+        <form class="row row-cols-lg-auto g-3 align-items-center">
+            <div class="col-12">
+                <label class="visually-hidden" for="search-realName">Username</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search-realName" placeholder="请输入真实姓名">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label class="visually-hidden" for="search-gender">Preference</label>
+                <select class="form-select" id="search-gender">
+                    <option value="-1" name="search-gender">请选择性别</option>
+                    <option value="1" name="search-gender">男</option>
+                    <option value="0" name="search-gender">女</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label class="visually-hidden" for="search-age">Username</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search-age" placeholder="请输入年龄">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" id="search-btn">搜索</button>
+                <button type="button" class="btn btn-secondary">重置</button>
+            </div>
+        </form>
+        <div class="operation-div">
+            <button type="button" class="btn btn-success" id="add-btn">新增</button>
+        </div>
+    </div>
+    <div class="table-div">
+        <table class="table table-danger">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">用户名</th>
+                    <th scope="col">密码</th>
+                    <th scope="col">真实姓名</th>
+                    <th scope="col">性别</th>
+                    <th scope="col">年龄</th>
+                    <th scope="col">注册时间</th>
+                    <th scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">新增</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="username" class="col-form-label">用户名:</label>
+                            <input type="text" class="form-control" id="username" name="username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="col-form-label">密码:</label>
+                            <input class="form-control" id="password" name="password"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="age" class="col-form-label">年龄:</label>
+                            <input class="form-control" id="age" name="age"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="realName" class="col-form-label">真实姓名:</label>
+                            <input class="form-control" id="realName" name="realName"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gender" class="col-form-label">性别:</label>
+                            <select class="form-select" id="gender">
+                                <option value="-1" name="gender">请选择性别</option>
+                                <option value="1" name="gender">男</option>
+                                <option value="0" name="gender">女</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="addSysuser()">确认</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--   顷提示-->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="..." class="rounded me-2" alt="..." id="toast-img">
+                <strong class="me-auto" id="toast-title">Bootstrap</strong>
+                <small>刚刚</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                Hello, world! This is a toast message.
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function (){
+        // JQuery
+        // ready -> 当页面元素全部加载完成时 自动执行
+        getUserList();
+        // 给搜索按钮添加点击事件 #代表ID选择器
+        $("#search-btn").click(function (){
+            getUserList();
+        })
+        // 给新增按钮添加一个点击事件，打开新增弹框
+        $("#add-btn").click(function (){
+            $("#userForm").modal("show");
+        })
+    })
+
+    function addSysuser()
+    {//添加用户
+        //1获取用户的值
+        var username=$("#username").val();
+        var password=$("#password").val();
+        var realName=$("#realName").val();
+        var age=$("#age").val();
+        var gender=$("option[name='gender']:selected").val();
+        console.log(gender)
+        // gender=
+        gender = gender==-1? "":gender;
+
+        $.ajax({
+            url:"http://localhost:8081/user/add",
+            type:"POST",
+            data: {
+                username,password,realName,age,gender
+            },
+            success:function (resp)
+            {
+                console.log(resp);
+                if(resp.code==200)   //新增成功 打开轻提示
+                {
+                    myToast("成功！","您刚刚成功新增了一条数据！",true);
+                    $("#userForm").modal("hide");
+                    getUserList();
+                    resetForm();
+                }
+                else
+                    myToast("失败！","您刚刚操作失败，请稍后再试",false);
+            }
+        })
+        //2发生ajax的值 并且携带上值
+    }
+    function deleteById(id)
+    {
+        $.ajax({
+            url: "http://localhost:8081/user/delete",
+            type: "POST",
+            data: {id},
+            success: function (resp) {
+                if(resp.code==200)   //新增成功 打开轻提示
+                {
+                    myToast("成功！", "您刚刚成功删除了一条数据！", true);
+                    getUserList();
+                }
+                else
+                    myToast("失败！","您刚刚操作失败，请稍后再试",false);
+            }
+        })
+    }
+    function myToast(title,message,isSuccess)
+    {
+            var toastElement=$("#liveToast");
+            var toastBooststrap=bootstrap.Toast.getOrCreateInstance(toastElement);
+
+            $("#toast-title").text(title);
+            $("#toast-message").text(message);
+            if(isSuccess)
+                $("#toast-img").attr("src","./image/success.png")
+            else
+                $("#toast-img").attr("src","./image/fail.png")
+
+        toastBooststrap.show();
+    }
+    /**
+     * 获取用户列表
+     */
+    function getUserList(){
+        // 获取条件输入框中的数据
+        var realName = $("#search-realName").val();
+        var age = $("#search-age").val();
+        var gender = $("option[name='search-gender']:selected").val();
+        // 去除默认选项的影响
+        gender = gender==-1? "":gender;
+        /**
+         * 发送请求：
+         * 同步请求，请求发送出去之后，一直等待响应回来。如果相应比较慢
+         *      页面一直转圈圈
+         *
+         * 异步请求，请求发出去之后，该干嘛干嘛，什么时候响应回来了，再去执行
+         * 回调函数。
+         *
+         * js对象：
+         * {
+         *     key:value,
+         *     key:value
+         * }
+         */
+
+        $.ajax({
+            /*
+             发送请求的地址：
+             http://localhost:端口号/Controller类上的@RequestMapping注解/方法上的@RequestMapping注解
+             大小写敏感 -> 区分
+             如果url写的不对，页面报错：404
+            */
+            url:"http://localhost:8081/user/list",
+            type:"POST",
+            data:{
+                // 请求携带的参数
+                realName:realName,
+                age, // age:age
+                gender
+            },
+            // 回调函数
+            success: function (resp){
+                console.log(resp);
+                // 获取到用户的列表数据
+                var userList = resp.data;
+                // 要组装的 html
+                var htmlStr = "";
+                userList.forEach((item,index)=>{
+                    // item 当前正在循环的元素
+                    // index 当前元素的下标
+                    htmlStr += "<tr>";
+                    htmlStr += "<th>"+item.id+"</th>";
+                    htmlStr += "<td>"+item.username+"</td>";
+                    htmlStr += "<td>"+item.password+"</td>";
+                    htmlStr += "<td>"+item.realName+"</td>";
+                    if(item.gender == 0){
+                        htmlStr += "<td>女</td>";
+                    }else if(item.gender == 1){
+                        htmlStr += "<td>男</td>"
+                    }
+                    htmlStr += "<td>"+item.age+"</td>";
+                    htmlStr += "<td>"+item.createTime+"</td>";
+                    <!-- 操作列 -->
+                    htmlStr += "<td>" +
+                        "<button type='button' class='btn btn-success btn-sm'>更新</button>" +
+                        "<button type='button' class='btn btn-danger btn-sm' onclick='deleteById("+item.id+")'>删除</button>" +
+                        "</td>";
+                    htmlStr += "</tr>";
+                })
+                // 将htmlStr放入tbody标签
+                $("tbody").html(htmlStr)
+            },
+            error: function (error){
+                console.log(error)
+            }
+        })
+    }
+    function resetForm()
+    {
+        // $("#username").val("");
+        // $("#password").val("");
+        // $("#age").val("");
+        // $("#realName").val("");
+        // $("option[name='gender']").removeAttr("selected");
+        // $("option[name='gender']:first").attr("selected","selected");
+
+    }
+</script>
+</html>

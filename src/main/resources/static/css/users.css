@@ -1,0 +1,38 @@
+body{
+    padding: 20px;
+}
+.search-div{
+    margin-bottom: 20px;
+}
+.operation-div{
+    margin-top: 20px;
+}
+#toast-img{
+    width: 20px;
+    height: 20px;
+}
+
+.menu {
+    position: fixed;
+    top: 50px;
+    left: 60%;
+    transform: translateX(-50%);
+    width: 100%;
+    text-align: center;
+}
+
+ul.center {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+ul.center li {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+ul.center li:last-child {
+    margin-right: 0;
+}
